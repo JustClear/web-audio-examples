@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Audio</title>
+    <link rel="stylesheet" href="./css/app.css">
+    <style>
+        .dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -20px;
+            margin-left: -20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #a1c4fd;
+        }
+        .line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 2px;
+            border-radius: 15px;
+            background: #c2e9fb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="text-center">彩虹 - 周杰伦</p>
+        <p class="text-center">我不配 - 周杰伦</p>
+        <div class="line">
+            <div class="dot js-dot"></div>
+        </div>
+    </div>
+    <!-- <audio autoplay src="http://127.0.0.1:8080/music.mp3"></audio> -->
+    <!-- <audio autoplay src="http://127.0.0.1:8080/music-2.mp3"></audio> -->
+    <script src="./js/app.js"></script>
+    <script src="./js/mtouch.min.js"></script>
+    <script>
+    (function () {
+        const winWidth = window.innerWidth;
+        const el = document.querySelector('.js-dot');
+        const touch = new MTouch('.js-dot');
+        const transform = {
+            offsetX: 0,
+        };
+
+        getBuffer(MUSIC_RESOURCE_URL).then(bufferOne => {
+            console.log(bufferOne);
+            getBuffer(MUSIC_RESOURCE_URL_TWO).then(bufferTwo => {
+                console.log(bufferTwo);
+                const sourceOne = audioContext.createBufferSource();
+                const sourceTwo = audioContext.createBufferSource();
+                const gainNodeOne = audioContext.createGain();
+                const gainNodeTwo = audioContext.createGain();
+
+                sourceOne.buffer = bufferOne;
+                sourceTwo.buffer = bufferTwo;
+
+                sourceOne.connect(gainNodeOne);
+                sourceTwo.connect(gainNodeTwo);
+                gainNodeOne.connect(audioContext.destination);
+                gainNodeTwo.connect(audioContext.destination);
+
+                sourceOne.start();
+                sourceTwo.start();
+
+                touch.on('drag', function (ev) {
+                    transform.offsetX += ev.delta.deltaX;
+                    transform.offsetX = transform.offsetX <= (winWidth * .8) / -2 ? (winWidth * .8) / -2 : transform.offsetX;
+                    transform.offsetX = transform.offsetX >= (winWidth * .8) / 2 ? (winWidth * .8) / 2 : transform.offsetX;
+                    el.style.transition = `0s all`;
+                    el.style.transform = `translateX(${transform.offsetX}px)`
+
+                    const ratio = (transform.offsetX + 150) / 300;
+
+                    gainNodeOne.gain.value = Math.cos(ratio * 0.5 * Math.PI);
+                    gainNodeTwo.gain.value = Math.cos((1 - ratio) * 0.5 * Math.PI);
+                    console.log(gainNodeOne.gain.value, gainNodeTwo.gain.value);
+                });
+
+                // source.start(0);
+            }).catch(error => {
+                console.log('error', error);
+            });
+        }).catch(error => {
+            console.log('error', error);
+        });
+    })();
+    </script>
+</body>
+</html>

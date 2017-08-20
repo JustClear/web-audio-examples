@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Audio</title>
+    <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+    <div class="container">
+        <p class="text-center">我不配 - 周杰伦</p>
+        <p><span class="button js-button active">lowpass</span></p>
+        <p><span class="button js-button">highpass</span></p>
+        <p><span class="button js-button">bandpass</span></p>
+        <p><span class="button js-button">lowshelf</span></p>
+        <p><span class="button js-button">highshelf</span></p>
+        <p><span class="button js-button">peaking</span></p>
+        <p><span class="button js-button">notch</span></p>
+        <p><span class="button js-button">allpass</span></p>
+    </div>
+    <script src="./js/app.js"></script>
+    <script>
+    (function () {
+        const buttonCollect = document.querySelectorAll('.js-button');
+        const buttons = [].slice.call(buttonCollect);
+
+        getBuffer(MUSIC_RESOURCE_URL).then(buffer => {
+            console.log(buffer);
+            playAudio(buffer, audioContext);
+        }).catch(error => {
+            console.log(error);
+        });
+
+        function playAudio(buffer, audioContext) {
+            const source = audioContext.createBufferSource();
+            const filter = audioContext.createBiquadFilter();
+
+            source.buffer = buffer;
+            source.connect(filter);
+            filter.connect(audioContext.destination);
+
+            source.start(0);
+
+            buttons.map(button => button.addEventListener('click', function () {
+                buttons.map(button => button.className = `button js-button`);
+                this.className = `button js-button active`;
+                filter.type = this.textContent;
+            }));
+        }
+    })();
+    </script>
+</body>
+</html>

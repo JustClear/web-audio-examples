@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Audio</title>
+    <link rel="stylesheet" href="./css/app.css">
+    <style>
+        .dot,
+        .dot-big {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -40px;
+            margin-left: -40px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #a1c4fd;
+            opacity: .5;
+        }
+        .dot-big {
+            margin-top: -50px;
+            margin-left: -50px;
+            width: 100px;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="text-center">我不配 - 周杰伦</p>
+        <div class="dot-big"></div>
+        <div class="dot js-dot"></div>
+    </div>
+    <script src="./js/app.js"></script>
+    <script src="./js/mtouch.min.js"></script>
+    <script>
+    (function () {
+        const loading = document.querySelector('.js-loading');
+        const el = document.querySelector('.js-dot');
+        const touch = new MTouch('.js-dot');
+        const transform = {
+            x: 0,
+            y: 0,
+        };
+
+        getBuffer(MUSIC_RESOURCE_URL).then(buffer => {
+            console.log(buffer);
+            playAudio(buffer, audioContext);
+        }).catch(error => {
+            console.log(error);
+        });
+
+        function playAudio(buffer, audioContext) {
+            const source = audioContext.createBufferSource();
+            const pannerNode = audioContext.createPanner();
+            source.buffer = buffer;
+            source.loop = true;
+            source.connect(pannerNode);
+            pannerNode.connect(audioContext.destination);
+            pannerNode.panningModel = 'HRTF';
+            pannerNode.distanceModel = 'inverse';
+
+            touch.on('drag', function (ev) {
+                transform.x += ev.delta.deltaX;
+                transform.y += ev.delta.deltaY;
+                el.style.transition = `0s all`;
+                el.style.transform = `translate3d(${transform.x}px,${transform.y}px,0px)`
+                pannerNode.setPosition(parseInt(transform.x / 50), 0, parseInt(transform.y / 50));
+                console.log(parseInt(transform.x / 50), 0, parseInt(transform.y / 50));
+            });
+
+            touch.on('dragend', function (ev) {
+                transform.x = 0;
+                transform.y = 0;
+                el.style.transition = `.3s all`;
+                el.style.transform = `translate3d(${transform.x}px,${transform.y}px,0px)`
+                setTimeout(() => {
+                    pannerNode.setPosition(0, 0, 0);
+                }, 300);
+            });
+
+            console.log('source.start(0)');
+            source.start(0);
+        }
+    })();
+    </script>
+</body>
+</html>
