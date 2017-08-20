@@ -1,5 +1,5 @@
-const MUSIC_RESOURCE_URL = 'http://127.0.0.1:8080/music/1.mp3';
-const MUSIC_RESOURCE_URL_TWO = 'http://127.0.0.1:8080/music/2.mp3';
+const MUSIC_RESOURCE_URL = 'https://justclear.github.io/web-audio-examples/music/1.mp3';
+const MUSIC_RESOURCE_URL_TWO = 'https://justclear.github.io/web-audio-examples/music/2.mp3';
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioContext = new AudioContext();
 
